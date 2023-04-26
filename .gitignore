@@ -2,6 +2,7 @@
 node_modules
 /dist/
 model
+save
 datas/
 # local env files
 .env.local

@@ -1,0 +1,68 @@
+Classifier: !!python/name:model_base.TriggerVerifyClassifier ''
+Encoder: !!python/name:model_encoder.bertweet.Encoder ''
+Integrate: !!python/name:model_integrate.aware.Integrate ''
+Interact: !!python/name:model_interact.ugrn.Interact ''
+args: !!python/object:config.Args
+  balance: false
+  batch_size: 5
+  bert_embedding_size: 768
+  bert_tweet: vinai/bertweet-base
+  data_file: ./data/trigger.csv
+  dropout: 0.3
+  ex_seed: 0
+  fix_sentence: false
+  gpu:
+  - 0
+  hidden_size: 300
+  ins: '201'
+  jump_epochs: 0
+  log_every_n_steps: 200
+  loss_weight:
+    trigger:
+    - 0.6
+    - 0.8
+    - 1
+    - 1
+    verify:
+    - 1
+    - 1
+    - 1
+  lr: 2.0e-05
+  lr_ratio: 4
+  lr_ratio2: 2
+  max_epochs: 110
+  model_name: BertweetUgrnAware
+  name: _BertweetUgrnAware_verify+trigger_RANDOM=10_s10_w1_201-0_20230419-163158
+  num_classes:
+    trigger: 4
+    verify: 3
+  num_workers: 4
+  preprocess: true
+  pretrain_file: /remote-home/share/social/pretrained/bert-base-cased
+  project: trigger_identification
+  result_dir: ./result
+  save_dir: ./save
+  split_seed: 10
+  task_loss_bound:
+    trigger: 0.65
+    verify: 0.8
+  task_weight:
+    trigger: 1
+    verify: 1
+  tasks:
+  - trigger
+  - verify
+  tasks_all:
+  - trigger
+  - verify
+  test: false
+  test_event: 0
+  time_now: 20230419-163158
+  train: true
+  unfreeze_at_epoch: 0
+  val_check_interval: 200
+  val_info: RANDOM=10
+  val_type: RANDOM
+  variable: ''
+  warmup_epochs: 1
+  weight_decay: 0.01

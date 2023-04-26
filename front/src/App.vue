@@ -28,6 +28,7 @@
         </div>
         <div id="right_bottom" class="view">
           <h2>View 4</h2>
+          <RumorTree/>
         </div>
       </div>
     </div>
@@ -42,6 +43,7 @@ import bus from "./components/bus.js"
 import TextList from './components/TextList.vue'
 import UserPanel from './components/UserPanel.vue'
 import TripleTree from './components/TripleTree.vue'
+import RumorTree from './components/RumorTree.vue'
 export default {
   name: 'App',
   created () {
@@ -59,7 +61,8 @@ export default {
     BarView,
     TextList,
     UserPanel,
-    TripleTree
+    TripleTree,
+    RumorTree
   }
 }
 </script>

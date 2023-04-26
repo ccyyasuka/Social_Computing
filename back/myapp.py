@@ -9,6 +9,7 @@ from sentiment import senti_analysis
 from EventExtraction import openie2triple
 from sentence_filt_by_time import sentence_filt_by_time
 from convert2df import list2df
+from RumorTree import rumor_analysis
 # import json
 import os
 os.chdir("/data-14T/zhangyixing/SocialComputing/Social_Computing/back")
@@ -51,6 +52,21 @@ def sentiment():
         return {"res":res}
     else:
         return {}
+
+
+@app.route('/api/RumorTree', methods=["GET","POST"])
+def RumorTree():
+    # print(request)
+    if request.method == 'POST':
+        req_data = request.get_json()
+        
+        res = rumor_analysis()
+        print("req_res********************************************")
+        # print(res)
+        return res
+    else:
+        return {}
+
 
 @app.route('/api/textlist', methods=["GET","POST"])
 def textlist():
