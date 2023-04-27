@@ -13,11 +13,29 @@ import bus from "./bus.js"
 export default {
   data () {
     return {
-      
+
     }
   },
   created () {
-    let param={"a":0}
+    let param = { "date": 0, "event": 0 }
+    // bus.$on("SelectTime",(val) => {
+    //   this.date=val["date"]
+    //   this.event=val["event"]
+    //   let param ={"date": this.date, "event": this.event} 
+    //   axios
+    //     .post("http://10.192.9.11:9931/api/RumorTree", param)
+    //     .then((response) => {
+    //       console.log(response)
+    //       let temp = JSON.stringify(response.data)
+    //       console.log(temp)
+    //       let res = JSON.parse(temp)
+    //       console.log(res)
+    //       this.ini_links = res
+    //       console.log(this.ini_links)
+    //       this.draw()
+    //     })
+
+    // });
     axios
       .post("http://10.192.9.11:9931/api/RumorTree", param)
       .then((response) => {
@@ -34,41 +52,41 @@ export default {
   },
   methods: {
     draw () {
-      function linkArc(d) {
-        const r = Math.hypot(d.target.x - d.source.x, d.target.y - d.source.y);
+      function linkArc (d) {
+        const r = Math.hypot(d.target.x - d.source.x, d.target.y - d.source.y)
         return `
           M${d.source.x},${d.source.y}
           A${r},${r} 0 0,1 ${d.target.x},${d.target.y}
-        `;
+        `
       }
       let drag = simulation => {
-        
-        function dragstarted(event, d) {
-          if (!event.active) simulation.alphaTarget(0.3).restart();
-          d.fx = d.x;
-          d.fy = d.y;
+
+        function dragstarted (event, d) {
+          if (!event.active) simulation.alphaTarget(0.3).restart()
+          d.fx = d.x
+          d.fy = d.y
         }
-        
-        function dragged(event, d) {
-          d.fx = event.x;
-          d.fy = event.y;
+
+        function dragged (event, d) {
+          d.fx = event.x
+          d.fy = event.y
         }
-        
-        function dragended(event, d) {
-          if (!event.active) simulation.alphaTarget(0);
-          d.fx = null;
-          d.fy = null;
+
+        function dragended (event, d) {
+          if (!event.active) simulation.alphaTarget(0)
+          d.fx = null
+          d.fy = null
         }
-        
+
         return d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended)
       }
 
 
       let links = this.ini_links
-      console.log(links)
+      // console.log(links)
       let types = Array.from(new Set(links.map(d => d.type)))
 
       let data = ({ nodes: Array.from(new Set(links.flatMap(l => [l.source, l.target])), id => ({ id })), links })
@@ -82,21 +100,32 @@ export default {
 
       const simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links).id(d => d.id))
-        .force("charge", d3.forceManyBody().strength(-400))
+        .force("charge", d3.forceManyBody().strength(-200))
         .force("x", d3.forceX())
         .force("y", d3.forceY())
       d3.select("#RumorTreeSvg").selectAll("*").remove()
       // const svg = d3.selectAll("#CommentNetwork").append("svg")
       //     .attr("viewBox", [-width / 2, -height / 2, width*2, height*2])
       //     .style("font", "12px sans-serif");
-      const svg = d3.select("#RumorTreeSvg").attr("viewBox", [-width/2 , -height/2 , width, height])
-        // .attr("viewBox", [0, 0, width*2, 2*height])
-        // .attr("id","BarSvg")
-        // .attr("width", width)
-        // .attr("height", height)
+      const svg = d3.select("#RumorTreeSvg").attr("viewBox", [-width / 2, -height / 2, width, height])
+      let g = svg.append("g")
+
+      const zoom = d3.zoom()
+        .scaleExtent([1, 8])
+        .on("zoom", zoomed)
+      function zoomed (event) {
+        const { transform } = event
+        g.attr("transform", transform)
+        g.attr("stroke-width", 1 / transform.k)
+      }
+      svg.call(zoom)
+      // .attr("viewBox", [0, 0, width*2, 2*height])
+      // .attr("id","BarSvg")
+      // .attr("width", width)
+      // .attr("height", height)
 
       // Per-type markers, as they don't inherit styles.
-      svg.append("defs").selectAll("marker")
+      g.append("defs").selectAll("marker")
         .data(types)
         .join("marker")
         .attr("id", d => `arrow-${d}`)
@@ -110,7 +139,7 @@ export default {
         .attr("fill", color)
         .attr("d", "M0,-5L10,0L0,5")
 
-      const link = svg.append("g")
+      const link = g.append("g")
         .attr("fill", "none")
         .attr("stroke-width", 1.5)
         .selectAll("path")
@@ -119,7 +148,7 @@ export default {
         .attr("stroke", d => color(d.type))
         .attr("marker-end", d => `url(${new URL(`#arrow-${d.type}`, location)})`)
 
-      const node = svg.append("g")
+      const node = g.append("g")
         .attr("fill", "currentColor")
         .attr("stroke-linecap", "round")
         .attr("stroke-linejoin", "round")

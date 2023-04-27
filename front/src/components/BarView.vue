@@ -249,6 +249,7 @@ export default {
         .on("click", function (e, d) {
           // console.log("event", this.event)
           bus.$emit("SelectTime", { "date": d.date, "event": that.event })
+          console.log("SelectTime",d.date)
         })
 
 
