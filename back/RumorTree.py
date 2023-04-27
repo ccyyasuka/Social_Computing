@@ -12,11 +12,11 @@ import torch
 import logging
 # import numpy as np
 # import pickle
-from trigger_use.myuse import tree_predict
+from trigger_use.myuse import tree_predict,tree_predict1
 
 
-def rumor_analysis():
-    res = tree_predict()
+def rumor_analysis(date,event):
+    res = tree_predict1(date,event)
     print(res)
     return res
     # reserve useful fields

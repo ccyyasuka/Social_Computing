@@ -17,8 +17,14 @@ from model_encoder.bertweet import Encoder
 from model_interact.ugrn import Interact
 from model_integrate.aware import Integrate
 from model_base import TriggerVerifyClassifier
-def tree_predict():
+def tree_predict(date,event):
     print(args.__dict__)
+    print("""##############################################################################################################################################################################################################################################################################""")
+    args.date = date
+    args.event = event
+    print(date)
+    print(event)
+    print("""##############################################################################################################################################################################################################################################################################""")
 
     data_module = TriggerDataModule(args)
     # data_module.setup()
@@ -111,16 +117,27 @@ def tree_predict():
     # trigger_outputs = model_trigger.test_outputs
     trainer.test(model_verify, data_module)
     verify_outputs = model_verify.test_outputs
-    df = pd.read_csv('./temp_data/trigger.csv')
-    fields = ['mid', 'pid', 'content']
-    df = df[fields][:188]
+    # df = pd.read_csv('./temp_data/trigger.csv')
+    df = data_module.dataset
+    fields = ['cid','mid', 'pid', 'content']
+    df = df[fields]
     df.insert(loc=2, column='trigger_preds_tag', value=verify_outputs["trigger_preds_tag"])
     df.insert(loc=2, column='verify_preds_tag', value=verify_outputs["verify_preds_tag"])
+    msk = df['pid'] == "None"
+    drop_labels = df.loc[msk, :].index
+    df.drop(
+        labels=drop_labels,
+        axis=0,
+        inplace=True
+    )
+    df = df.reindex(columns=['mid', 'pid', 'content',"trigger_preds_tag","verify_preds_tag",'cid'])
+    # df.drop(df.index[df['pid'] == "None"])
+    df.to_csv('./temp_data/RumorTree.csv')
     total_list = df.values.tolist()
     res = []
     for i in range(len(total_list)):
         # for j in range(len(total_list[0])):
-        res.append({"source":total_list[i][0],"target":total_list[i][1],"content":total_list[i][2],"trigger_preds_tag":total_list[i][3],"type":total_list[i][4]})
+        res.append({"source":total_list[i][1],"target":total_list[i][0],"content":total_list[i][2],"trigger_preds_tag":total_list[i][3],"type":total_list[i][4]})
     # reserve useful fields
     
     return res
@@ -128,4 +145,16 @@ def tree_predict():
     # print("aaaaaaaaaaaaaaaaaaaaaa")
     # df_test = data_module.test_dataloader().dataset.data
     # eval_tool = Evaluation(args)
-# tree_predict()
+def tree_predict1(a,b):
+    df = pd.read_csv('./temp_data/RumorTree.csv')
+    df = df.reindex(columns=['mid', 'pid', 'content',"trigger_preds_tag","verify_preds_tag",'cid'])
+
+    total_list = df.values.tolist()
+    res = []
+    for i in range(len(total_list)):
+        # for j in range(len(total_list[0])):
+        res.append({"source":total_list[i][1],"target":total_list[i][0],"content":total_list[i][2],"trigger_preds_tag":total_list[i][3],"type":total_list[i][4]})
+    # reserve useful fields
+    return res
+if __name__=="__main__":
+    tree_predict("2014-10-23 10:00","ottawashooting")

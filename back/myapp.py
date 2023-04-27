@@ -59,8 +59,7 @@ def RumorTree():
     # print(request)
     if request.method == 'POST':
         req_data = request.get_json()
-        
-        res = rumor_analysis()
+        res = rumor_analysis(req_data["date"],req_data["event"])
         print("req_res********************************************")
         # print(res)
         return res

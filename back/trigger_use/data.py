@@ -1,6 +1,8 @@
-﻿import sys
+﻿from ast import arg
+import sys
 sys.path.append('/data-14T/zhangyixing/SocialComputing/Social_Computing/back/temp_data')
 import re
+import time
 import random
 import json
 import pandas as pd
@@ -47,22 +49,46 @@ class TriggerDataModule(pl.LightningDataModule):
         self.test = args.test
         self.balance = args.balance
         self.num_workers = args.num_workers
+        self.date = args.date
+        self.event = args.event
         self.args = args
-
+    def get_wanted_df(self,df):
+        dt = self.date
+        if len(dt)==10:
+            dt1 = dt+" 00:00:00"
+            dt2 = dt+" 23:59:59"
+        else:
+            dt = dt[:13]
+            dt1 = dt+":00:00"
+            dt2 = dt+":59:59"
+        timeArray1 = time.strptime(dt1, "%Y-%m-%d %H:%M:%S")
+        # 转换成时间戳
+        start = time.mktime(timeArray1)
+        timeArray2 = time.strptime(dt2, "%Y-%m-%d %H:%M:%S")
+        # 转换成时间戳
+        end = time.mktime(timeArray2)
+        df_temp=df.loc[(df["time"]>=start)&(df["time"]<=end)&(df["event"]==self.event)]
+        cids = list(set(df_temp["cid"].values.tolist()))
+        df = df.loc[df['cid'].isin(cids)]
+        return df
+        
+        
     def _load_dataset(self):
         print('Loading dataset...')
         print(os.listdir())
         df = pd.read_csv(self.data_file)
         # reserve useful fields
-        fields = ['mid', 'cid', 'pid', 'event',
+        fields = ['mid', 'cid', 'pid', 'event',"content",
                   'time', 'content4dl', 'trigger', 'verify']
         df = df[fields]
+        
         # convert ID fields into string type to avoid incoherence in np/pd/torch
         df['cid'] = df['cid'].apply(str)
         df['mid'] = df['mid'].apply(str)
         df['pid'] = df['pid'].apply(str)
         # reset dataframe index
         df.index = df['mid']
+        df = self.get_wanted_df(df)
         df.index.name = None
         self.dataset = df
 
@@ -146,7 +172,7 @@ class TriggerDataModule(pl.LightningDataModule):
         # random.shuffle(cids_train)
         self.cids_train = cids_train
         self.cids_val = cids_val
-        self.cids_test = cids_test[:10]
+        self.cids_test = cids_test
 
     # def _split_statistics(self):
     #     '''Analyze label distribution'''
